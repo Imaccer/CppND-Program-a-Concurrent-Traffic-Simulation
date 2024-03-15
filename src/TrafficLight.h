@@ -19,30 +19,12 @@ template <class T>
 class MessageQueue
 {
 public:
-  T receive() {
-    //  perform queue modification under the lock
-    std::unique_lock<std::mutex> uLock(_mutex);
-    _cond.wait(uLock, [this] {return !_messages.empty();});//  pass unique lock to condition variable
-
-    T msg = std::move(_messages.back());
-    _messages.pop_back();
-
-    return msg;
-  } 
-
- void send(T &&msg) {
-  //  perform queue modification under lock
-  std::lock_guard<std::mutex> lock(_mutex);
-
-  //  add msg to the queue
-  std::cout << "   Message " << msg << " has been sent to the queue" << std::endl;
-  _messages.push_back(std::move(msg));
-  _cond.notify_one();
- }
+ T receive();
+ void send(T &&msg); 
 private:
-  std::deque<T> _messages;
+  std::deque<T> _queue;
   std::mutex _mutex;
-  std::condition_variable _cond;
+  std::condition_variable _condition;
     
 };
 

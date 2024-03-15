@@ -5,13 +5,22 @@
 
 /* Implementation of class "MessageQueue" */
 
-/* 
+ 
 template <typename T>
 T MessageQueue<T>::receive()
 {
     // FP.5a : The method receive should use std::unique_lock<std::mutex> and _condition.wait() 
     // to wait for and receive new messages and pull them from the queue using move semantics. 
     // The received object should then be returned by the receive function. 
+
+    //  perform queue modification under the lock
+    std::unique_lock<std::mutex> uLock(_mutex);
+    _condition.wait(uLock, [this] {return !_queue.empty();});//  pass unique lock to condition variable
+
+    T msg = std::move(_queue.back());
+    _queue.pop_back();
+
+    return msg;
 }
 
 template <typename T>
@@ -19,8 +28,16 @@ void MessageQueue<T>::send(T &&msg)
 {
     // FP.4a : The method send should use the mechanisms std::lock_guard<std::mutex> 
     // as well as _condition.notify_one() to add a new message to the queue and afterwards send a notification.
+  //  perform queue modification under lock
+  std::lock_guard<std::mutex> lock(_mutex);
+
+  //  add msg to the queue
+  std::cout << "   Message " << msg << " has been sent to the queue" << std::endl;
+  _queue.push_back(std::move(msg));
+  _condition.notify_one();
+
 }
-*/
+
 
 /* Implementation of class "TrafficLight" */
 
