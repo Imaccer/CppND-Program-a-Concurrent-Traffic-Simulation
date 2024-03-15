@@ -23,7 +23,7 @@ void MessageQueue<T>::send(T &&msg)
 
 /* Implementation of class "TrafficLight" */
 
-/* 
+ 
 TrafficLight::TrafficLight()
 {
     _currentPhase = TrafficLightPhase::red;
@@ -53,6 +53,39 @@ void TrafficLight::cycleThroughPhases()
     // and toggles the current phase of the traffic light between red and green and sends an update method 
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
+
+    std::chrono::time_point<std::chrono::system_clock> lastUpdate;
+
+    std::random_device rd; // Obtain a random seed from hardware
+    std::mt19937 gen(rd()); // Seed the random number generator
+    std::uniform_real_distribution<> dis(4.0, 6.0); // Define the range for the random distribution
+
+    // init stop watch
+    lastUpdate = std::chrono::system_clock::now();
+
+    while (true)
+    {
+        // sleep at every iteration to reduce CPU usage
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+        double cycleDuration = dis(gen) * 1000;
+        // compute time difference to stop watch
+        long timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
+
+      if (timeSinceLastUpdate >= cycleDuration) {
+        _currentPhase = (_currentPhase == TrafficLightPhase::red) ? TrafficLightPhase::green : TrafficLightPhase::red;
+      
+         // Print _currentPhase to std::cout
+    std::cout << "Current phase: ";
+
+    if (getCurrentPhase() == TrafficLightPhase::red) {
+        std::cout << "Red";
+    } else if (getCurrentPhase() == TrafficLightPhase::green) {
+        std::cout << "Green";
+    }
+
+    std::cout << std::endl;
+}
+    }
 }
 
-*/
