@@ -32,7 +32,7 @@ void MessageQueue<T>::send(T &&msg)
   std::lock_guard<std::mutex> lock(_mutex);
 
   //  add msg to the queue
-  std::cout << "   Message " << msg << " has been sent to the queue" << std::endl;
+//  std::cout << "   Message " << msg << " has been sent to the queue" << std::endl;
   _queue.push_back(std::move(msg));
   _condition.notify_one();
 
@@ -93,6 +93,7 @@ void TrafficLight::cycleThroughPhases()
 
       if (timeSinceLastUpdate >= cycleDuration) {
         _currentPhase = (_currentPhase == TrafficLightPhase::red) ? TrafficLightPhase::green : TrafficLightPhase::red;
+        _messages.send(std::move(_currentPhase));
       
          // Print _currentPhase to std::cout
     std::cout << "Current phase: ";
